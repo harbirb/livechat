@@ -23,7 +23,6 @@ code {
 .message {
   display: flex;
   align-items: center;
-  margin-bottom: 10px;
 }
 
 .message.sent {
@@ -53,3 +52,25 @@ code {
   border-radius: 3rem;
 }
 
+.deleteButton {
+  background: none; 
+  border: none;     
+  color: inherit;   
+  font: inherit;   
+  cursor: pointer; 
+  outline: none;    
+}
+
+.messageOptionsContainer {
+  display: flex; /* Align child items horizontally */
+  flex-direction: row;
+}
+
+.messageOptionsContainer:hover .deleteButton {
+  display: block; /* Show button on hover */
+  visibility: visible;
+}
+
+.deleteButton {
+  visibility: hidden;
+}
