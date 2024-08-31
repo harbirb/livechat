@@ -1,7 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
 
-import { initializeApp } from "firebase/app";
 import { getFirestore, collection, query, orderBy, limit, addDoc, serverTimestamp } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -9,21 +8,7 @@ import { useAuthState, useSignInWithGoogle } from "react-firebase-hooks/auth"
 import { useCollectionData } from "react-firebase-hooks/firestore"
 import { useState, useRef } from 'react';
 
-// TODO: Replace the following with your app's Firebase project configuration
-// See: https://firebase.google.com/docs/web/learn-more#config-object
-const firebaseConfig = {
-  apiKey: "AIzaSyApZrFvpYXkfTmVz5EEHRWHOACgxrfQXTk",
-  authDomain: "livechat-89276.firebaseapp.com",
-  projectId: "livechat-89276",
-  storageBucket: "livechat-89276.appspot.com",
-  messagingSenderId: "208354646512",
-  appId: "1:208354646512:web:6680a6a5c1e89a6a3c2535",
-  measurementId: "G-7GSH8BX70B"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);
-
+import app from './firebaseConfig'
 
 // Initialize Firebase Authentication and get a reference to the service
 const auth = getAuth(app);
@@ -72,6 +57,7 @@ function ChatRoom() {
 
   const sendMessage = async(e) => {
     e.preventDefault()
+    if (formValue == '') return;
     const { uid, photoURL } = auth.currentUser
     await addDoc(messagesRef, {
       text: formValue,
@@ -86,7 +72,8 @@ function ChatRoom() {
 
   return (
     <>
-    <div>
+    <SignOut/>
+    <div className='chatroom'>
       {messages && messages.map(msg => <ChatMessage key={msg.id} message={msg} />)}
     </div>
 
@@ -102,14 +89,13 @@ function ChatRoom() {
 
 function ChatMessage(props) {
   const {text, uid, photoURL} = props.message;
-
-  const messageClass = uid === auth.currentUser ? 'sent' : 'recieved';
+  const messageClass = uid === auth.currentUser.uid ? 'sent' : 'received';
 
   return (
     <div className={`message ${messageClass}`}>
-
+      {messageClass === 'received' && <img src={photoURL}/>}
       <p>{text}</p>
-      <img src={photoURL}/>
+      {messageClass === 'sent' && <img src={photoURL}/>}
     </div>
   )
 }
