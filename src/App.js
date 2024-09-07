@@ -11,6 +11,7 @@ import {
   doc,
   deleteDoc,
   serverTimestamp,
+  updateDoc,
 } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
@@ -51,7 +52,9 @@ function SignOut() {
 
 function ChatRoom() {
   const [formValue, setFormValue] = useState("");
+  const [editingMessageID, setEditingMessageID] = useState();
   const dummyRef = useRef();
+  const inputRef = useRef();
   const messagesRef = collection(db, "messages");
   const q = query(messagesRef, orderBy("createdAt"), limit(25));
 
@@ -78,6 +81,25 @@ function ChatRoom() {
     }
   };
 
+  const editMessage = (id, text) => {
+    setFormValue(text);
+    setEditingMessageID(id);
+    inputRef.current.focus();
+  };
+
+  const updateMessage = async (e) => {
+    e.preventDefault();
+    try {
+      await updateDoc(doc(messagesRef, editingMessageID), {
+        text: formValue,
+      });
+      setFormValue("");
+    } catch (error) {
+      console.error(error);
+    }
+    setEditingMessageID(null);
+  };
+
   const sendMessage = async (e) => {
     e.preventDefault();
     if (formValue == "") return;
@@ -92,6 +114,12 @@ function ChatRoom() {
     dummyRef.current.scrollIntoView({ behavior: "smooth" });
   };
 
+  const handleExitEditing = (e) => {
+    e.preventDefault();
+    setEditingMessageID();
+    setFormValue("");
+  };
+
   return (
     <>
       <SignOut />
@@ -103,18 +131,31 @@ function ChatRoom() {
               id={msg.id}
               message={msg}
               onDelete={deleteMessage}
+              onEdit={editMessage}
+              isBeingEdited={msg.id == editingMessageID}
             />
           ))}
       </div>
 
       <div ref={dummyRef}></div>
 
-      <form onSubmit={sendMessage}>
+      <form
+        className={"inputForm"}
+        onSubmit={editingMessageID ? updateMessage : sendMessage}
+      >
+        {editingMessageID && (
+          <p>
+            Editing Message
+            <button onClick={handleExitEditing}>✖</button>
+          </p>
+        )}
         <input
+          style={{ width: "12rem" }}
+          ref={inputRef}
           value={formValue}
           onChange={(e) => setFormValue(e.target.value)}
         ></input>
-        <button type="submit">🕊️</button>
+        <button type="submit">Send 🕊️</button>
       </form>
     </>
   );
@@ -128,19 +169,27 @@ function ChatMessage(props) {
     props.onDelete(props.id);
   };
 
+  const handleEdit = () => {
+    props.onEdit(props.id, text);
+  };
+
   return (
-    <div className={`message ${messageClass}`}>
+    <div
+      className={`message ${messageClass} ${
+        props.isBeingEdited ? `editingMessage` : ""
+      }`}
+    >
       {messageClass === "received" && <img src={photoURL} />}
-      <div
-        className="messageOptionsContainer"
-      >
+      <div className="messageOptionsContainer">
         {messageClass === "sent" && (
-          <button
-            className="deleteButton"
-            onClick={handleDelete}
-          >
-            🗑️
-          </button>
+          <>
+            <button className="messageButton" onClick={handleDelete}>
+              🗑️
+            </button>
+            <button className="messageButton" onClick={handleEdit}>
+              ✏️
+            </button>
+          </>
         )}
         <p>{text}</p>
       </div>

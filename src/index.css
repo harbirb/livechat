@@ -5,6 +5,7 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: black;
 }
 
 code {
@@ -13,11 +14,19 @@ code {
 }
 .App {
   max-width: 700px;
-  margin: 0 auto;
+  margin: 2% auto;
+  background-color: gainsboro;
 }
 .chatroom {
   display: flex;
   flex-direction: column;
+}
+
+.inputForm {
+  padding: auto;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
 }
 
 .message {
@@ -48,11 +57,15 @@ code {
 
 .message.sent p {
   padding: 0.6rem;
-  background-color: lightgray;
+  background-color: lightblue;
   border-radius: 3rem;
 }
 
-.deleteButton {
+.message.sent.editingMessage {
+  background-color: #eee;
+}
+
+.messageButton {
   background: none; 
   border: none;     
   color: inherit;   
@@ -66,11 +79,11 @@ code {
   flex-direction: row;
 }
 
-.messageOptionsContainer:hover .deleteButton {
+.messageOptionsContainer:hover .messageButton {
   display: block; /* Show button on hover */
   visibility: visible;
 }
 
-.deleteButton {
+.messageButton {
   visibility: hidden;
 }
