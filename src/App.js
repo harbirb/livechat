@@ -56,7 +56,7 @@ function ChatRoom() {
   const dummyRef = useRef();
   const inputRef = useRef();
   const messagesRef = collection(db, "messages");
-  const q = query(messagesRef, orderBy("createdAt"), limit(25));
+  const q = query(messagesRef, orderBy("createdAt", "desc"), limit(25));
 
   const [snapshot, loading, error] = useCollection(q);
 
@@ -68,12 +68,18 @@ function ChatRoom() {
     return <div>error</div>;
   }
 
-  const messages = snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
+  const messages = snapshot.docs
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }))
+    .reverse();
 
   const deleteMessage = async (id) => {
+    if (editingMessageID == id) {
+      setEditingMessageID();
+      setFormValue("");
+    }
     try {
       await deleteDoc(doc(messagesRef, id));
     } catch (error) {
@@ -89,6 +95,7 @@ function ChatRoom() {
 
   const updateMessage = async (e) => {
     e.preventDefault();
+    if (formValue == "") return;
     try {
       await updateDoc(doc(messagesRef, editingMessageID), {
         text: formValue,
@@ -146,7 +153,9 @@ function ChatRoom() {
         {editingMessageID && (
           <p>
             Editing Message
-            <button onClick={handleExitEditing}>✖</button>
+            <button type="button" onClick={handleExitEditing}>
+              ✖
+            </button>
           </p>
         )}
         <input

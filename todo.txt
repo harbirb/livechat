@@ -3,6 +3,8 @@ Display UI better
 Show ads?
 show more messages, limit scrolling window
 deploy using firebase
-allow users to edit their old messages
 allow users to hide others msgs on their screen
+
+#TODO:
+When user is editing a message, and they delete it, it should disappear
 
